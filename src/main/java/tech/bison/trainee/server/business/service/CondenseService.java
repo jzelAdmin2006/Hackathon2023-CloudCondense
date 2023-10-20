@@ -107,15 +107,13 @@ public class CondenseService {
     while (!directories.isEmpty()) {
       final File currentDir = directories.poll();
       final File[] files = currentDir.listFiles();
-      if (files != null) {
-        for (File file : files) {
-          if (file.isDirectory()) {
-            directories.add(file);
-          } else if (file.getName().endsWith(SEVEN_ZIP_FILE_ENDING)) {
-            new SevenZip().extractTo(file,
-                new File(file.getParentFile(), file.getName().replace(SEVEN_ZIP_FILE_ENDING, "")).getParentFile());
-            Files.delete(file.toPath());
-          }
+      for (File file : files) {
+        if (file.isDirectory()) {
+          directories.add(file);
+        } else if (file.getName().endsWith(SEVEN_ZIP_FILE_ENDING)) {
+          new SevenZip().extractTo(file,
+              new File(file.getParentFile(), file.getName().replace(SEVEN_ZIP_FILE_ENDING, "")).getParentFile());
+          Files.delete(file.toPath());
         }
       }
     }
