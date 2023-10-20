@@ -67,7 +67,7 @@ public class CloudStorageController {
   public ResponseEntity<String> condenseCloud(@PathVariable int id) {
     return service.findById(id).map(entry -> {
       condenseService.condense(entry);
-      return ResponseEntity.ok("Condense triggered for id " + id);
+      return ResponseEntity.ok(String.format("Condense for cloud with id %d successful", id));
     }).orElseGet(() -> ResponseEntity.notFound().build());
   }
 }
