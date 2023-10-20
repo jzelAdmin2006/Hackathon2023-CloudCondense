@@ -30,6 +30,8 @@ public class CloudStorageEntity {
   @Enumerated(EnumType.STRING)
   private CloudStorageType type;
 
+  private String url;
+
   private String username;
   private String password;
   private Date created;

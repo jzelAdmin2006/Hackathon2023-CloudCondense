@@ -23,19 +23,20 @@ import tech.bison.trainee.server.common.davresource.ResourceURL;
 
 public class DavStorageCondense implements CondenseStorage {
 
-  public static final String WEBDAV_SERVER_URL = "http://localhost:80"; // TODO make this dynamic
+  public final String webdavServerUrl;
 
   private final Sardine sardine;
 
   public DavStorageCondense(CloudStorage storage) {
     this.sardine = SardineFactory.begin(storage.username(), storage.password());
+    webdavServerUrl = storage.url().orElseThrow();
   }
 
   @Override
   public List<CondenseResource> recursivelyList() {
     try {
       return recursivelyListDav().stream()
-          .map(resource -> new DavResourceCondense(resource, sardine))
+          .map(resource -> new DavResourceCondense(resource, sardine, webdavServerUrl))
           .collect(toList());
     } catch (IOException e) {
       e.printStackTrace();
@@ -44,13 +45,13 @@ public class DavStorageCondense implements CondenseStorage {
   }
 
   private List<DavResource> recursivelyListDav() throws IOException {
-    final List<DavResource> resources = new ArrayList<>(sardine.list(WEBDAV_SERVER_URL).stream().skip(1).toList());
+    final List<DavResource> resources = new ArrayList<>(sardine.list(webdavServerUrl).stream().skip(1).toList());
     final LinkedList<DavResource> queue = new LinkedList<>(resources);
     while (!queue.isEmpty()) {
       final DavResource resource = queue.poll();
       if (resource.isDirectory()) {
         final List<DavResource> childResources = sardine
-            .list(ensureTrailingSlash(new ResourceURL(WEBDAV_SERVER_URL, resource).toString()))
+            .list(ensureTrailingSlash(new ResourceURL(webdavServerUrl, resource).toString()))
             .stream()
             .skip(1)
             .toList();
@@ -64,7 +65,7 @@ public class DavStorageCondense implements CondenseStorage {
   @Override
   public void upload(File file, String location) {
     try (InputStream is = new FileInputStream(file)) {
-      sardine.put(HttpUrl.parse(WEBDAV_SERVER_URL).resolve(location + file.getName()).toString(), is);
+      sardine.put(HttpUrl.parse(webdavServerUrl).resolve(location + file.getName()).toString(), is);
     } catch (IOException e) {
       e.printStackTrace();
     }

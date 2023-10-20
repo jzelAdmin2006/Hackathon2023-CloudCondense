@@ -21,6 +21,7 @@ import tech.bison.trainee.server.business.service.CondenseService;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageType;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageRequestDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageResourceDto;
+import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageTypeResourceDto;
 import tech.bison.trainee.server.webservice.service.WebMapperService;
 
 @RestController
@@ -37,10 +38,11 @@ public class CloudStorageController {
 
   @GetMapping
   public ResponseEntity<List<CloudStorageResourceDto>> getAllEntries() {
-    return ResponseEntity.ok(webMapperService.toDtos(service.getAllCloudStorageEntries()
+    return ResponseEntity.ok(service.getAllCloudStorageEntries()
         .stream()
         .sorted(Comparator.comparing(CloudStorage::created).reversed())
-        .toList()));
+        .map(webMapperService::toDto)
+        .toList());
   }
 
   @PostMapping
@@ -57,10 +59,10 @@ public class CloudStorageController {
   }
 
   @GetMapping("/types")
-  public ResponseEntity<List<String>> getCloudStorageTypes() {
+  public ResponseEntity<List<CloudStorageTypeResourceDto>> getCloudStorageTypes() {
     return ResponseEntity.ok(Arrays.stream(CloudStorageType.values())
         .filter(type -> type != CloudStorageType.UNKNOWN)
-        .map(CloudStorageType::getDisplayName)
+        .map(webMapperService::toDto)
         .toList());
   }
 

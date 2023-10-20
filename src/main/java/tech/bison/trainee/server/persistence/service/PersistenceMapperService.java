@@ -1,6 +1,7 @@
 package tech.bison.trainee.server.persistence.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,12 @@ public class PersistenceMapperService {
   }
 
   public CloudStorage fromEntity(CloudStorageEntity entity) {
-    return new CloudStorage(entity.getId(), entity.getName(), entity.getType(), entity.getUsername(),
-        encryptionService.decrypt(entity.getPassword()), entity.getCreated());
+    return new CloudStorage(entity.getId(), entity.getName(), entity.getType(), Optional.ofNullable(entity.getUrl()),
+        entity.getUsername(), encryptionService.decrypt(entity.getPassword()), entity.getCreated());
   }
 
   public CloudStorageEntity toEntity(CloudStorage entry) {
-    return new CloudStorageEntity(entry.id(), entry.name(), entry.type(), entry.username(),
+    return new CloudStorageEntity(entry.id(), entry.name(), entry.type(), entry.url().orElse(null), entry.username(),
         encryptionService.encrypt(entry.password()), entry.created());
   }
 
