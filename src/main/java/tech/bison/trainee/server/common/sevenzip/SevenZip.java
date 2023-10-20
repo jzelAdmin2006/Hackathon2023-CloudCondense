@@ -17,17 +17,32 @@ public class SevenZip {
     final ProcessBuilder processBuilder = new ProcessBuilder("7z", "a", "-t7z", "-mx=9", archive.getAbsolutePath(),
         input.getAbsolutePath());
     try {
-      final Process process = processBuilder.start();
-      process.waitFor();
-      try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-        reader.lines().forEach(LOGGER::info);
-      }
-      try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-        reader.lines().forEach(LOGGER::info);
-      }
+      execute(processBuilder);
     } catch (InterruptedException e) {
       currentThread().interrupt();
       throw new IOException("7z compression process was interrupted", e);
+    }
+  }
+
+  public void extractTo(File archive, File extractionDir) throws IOException {
+    final ProcessBuilder processBuilder = new ProcessBuilder("7z", "x", archive.getAbsolutePath(), "-o" + extractionDir,
+        "-aot");
+    try {
+      execute(processBuilder);
+    } catch (InterruptedException e) {
+      currentThread().interrupt();
+      throw new RuntimeException("7z extraction process was interrupted", e);
+    }
+  }
+
+  private void execute(final ProcessBuilder processBuilder) throws IOException, InterruptedException {
+    final Process process = processBuilder.start();
+    process.waitFor();
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+      reader.lines().forEach(LOGGER::info);
+    }
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+      reader.lines().forEach(LOGGER::info);
     }
   }
 }

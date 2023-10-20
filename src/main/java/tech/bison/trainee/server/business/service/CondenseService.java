@@ -7,8 +7,11 @@ import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -80,18 +83,41 @@ public class CondenseService {
     }
   }
 
-  // TODO implement that already archived files in a folder resource get extracted before
-  // rearchiving them
   private void archive(CondenseResource resource, CondenseStorage storage) throws IOException {
     final File tmpWorkDir = new File(archiveConfig.getTmpWorkDir());
     final File target = new File(tmpWorkDir, resource.getName());
+
     try {
       resource.copyTo(target);
+      if (resource.isDirectory()) {
+        extractExistingArchives(target);
+      }
       final File archive = new File(archiveConfig.getTmpWorkDir(), target.getName() + SEVEN_ZIP_FILE_ENDING);
       new SevenZip().compress(target, archive);
       replaceResource(resource, archive, storage);
     } finally {
       cleanDirectory(tmpWorkDir);
+    }
+  }
+
+  private void extractExistingArchives(File startDir) throws IOException {
+    final Queue<File> directories = new LinkedList<>();
+    directories.add(startDir);
+
+    while (!directories.isEmpty()) {
+      final File currentDir = directories.poll();
+      final File[] files = currentDir.listFiles();
+      if (files != null) {
+        for (File file : files) {
+          if (file.isDirectory()) {
+            directories.add(file);
+          } else if (file.getName().endsWith(SEVEN_ZIP_FILE_ENDING)) {
+            new SevenZip().extractTo(file,
+                new File(file.getParentFile(), file.getName().replace(SEVEN_ZIP_FILE_ENDING, "")).getParentFile());
+            Files.delete(file.toPath());
+          }
+        }
+      }
     }
   }
 
