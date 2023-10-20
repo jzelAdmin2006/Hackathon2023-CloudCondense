@@ -36,7 +36,6 @@ import tech.bison.trainee.server.config.ArchiveConfig;
 public class CondenseService {
   private static final int CONDENSE_AGE_MS = /* 24 * 60 * 60 * 1000 */ 0; // TODO make this dynamic
   private static final String CONDENSE_IGNORING_FILE_NAME = ".condenseignore";
-  private static final String CONDENSE_GROUPING_FILE_NAME = ".condensegroup";
   private final ArchiveConfig archiveConfig;
   private final CloudStorageService storageService;
   private final CondenseFactory condenseFactory;
@@ -55,8 +54,8 @@ public class CondenseService {
   }
 
   private void condense(CondenseStorage storage) {
-    final List<CondenseResource> recursiveResources = filterGrouping(filterIgnoring(storage.recursivelyList()));
-    recursiveResources.forEach(resource -> archiving.submit(() -> condense(resource, storage)));
+    final List<CondenseResource> recursiveResources = filterIgnoring(storage.recursivelyList());
+    recursiveResources.forEach(resource -> archiving.submit(() -> condense(resource, storage, recursiveResources)));
   }
 
   private List<CondenseResource> filterIgnoring(List<CondenseResource> recursiveResources) {
@@ -88,27 +87,25 @@ public class CondenseService {
     return ignoreNode.isIgnored(path, true) == MatchResult.IGNORED;
   }
 
-  // TODO implement similar to gitignore
-  private List<CondenseResource> filterGrouping(List<CondenseResource> recursiveResources) {
-    return recursiveResources.stream()
-        .filter(resource -> !resource.getName().equals(CONDENSE_GROUPING_FILE_NAME)
-            && recursiveResources.stream().noneMatch(otherResource -> otherResourceIsParent(resource, otherResource)))
-        .toList();
-  }
-
   private boolean otherResourceIsParent(CondenseResource resource, CondenseResource otherResource) {
     return ensureTrailingSlash(resource.getLocation()).contains(otherResource.getPath());
   }
 
-  private void condense(CondenseResource resource, CondenseStorage storage) {
-    if (resource.getModified().before(new Date(new Date().getTime() - CONDENSE_AGE_MS))
-        && (resource.isDirectory() || !resource.getName().endsWith(SEVEN_ZIP_FILE_ENDING))) {
+  private void condense(CondenseResource resource, CondenseStorage storage, List<CondenseResource> recursiveResources) {
+    if (shouldBeArchived(resource) && recursiveResources.stream()
+        .noneMatch(
+            otherResource -> otherResourceIsParent(resource, otherResource) && shouldBeArchived(otherResource))) {
       try {
         archive(resource, storage);
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
+  }
+
+  private boolean shouldBeArchived(CondenseResource resource) {
+    return resource.getModified().before(new Date(new Date().getTime() - CONDENSE_AGE_MS))
+        && (resource.isDirectory() || !resource.getName().endsWith(SEVEN_ZIP_FILE_ENDING));
   }
 
   private void archive(CondenseResource resource, CondenseStorage storage) throws IOException {
