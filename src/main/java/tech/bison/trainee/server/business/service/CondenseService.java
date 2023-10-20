@@ -33,12 +33,13 @@ public class CondenseService {
   private final CondenseFactory condenseFactory;
   private final ExecutorService archiving;
 
+  // TODO make scheduleRate dynamic
   @Scheduled(fixedRate = 3600000)
   public void condenseClouds() {
     storageService.getAllCloudStorageEntries().forEach(this::condense);
   }
 
-  private void condense(CloudStorage storage) {
+  public void condense(CloudStorage storage) {
     try (ExecutorService condenseExecutor = newSingleThreadExecutor()) {
       condenseExecutor.submit(() -> condense(condenseFactory.translate(storage)));
     }
