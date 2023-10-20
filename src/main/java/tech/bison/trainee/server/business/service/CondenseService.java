@@ -38,7 +38,7 @@ public class CondenseService {
     storageService.getAllCloudStorageEntries().forEach(this::condense);
   }
 
-  private void condense(CloudStorage storage) {
+  public void condense(CloudStorage storage) {
     try (ExecutorService condenseExecutor = newSingleThreadExecutor()) {
       condenseExecutor.submit(() -> condense(condenseFactory.translate(storage)));
     }

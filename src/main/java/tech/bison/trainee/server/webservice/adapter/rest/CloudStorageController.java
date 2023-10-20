@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
 import tech.bison.trainee.server.business.service.CloudStorageService;
+import tech.bison.trainee.server.business.service.CondenseService;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageType;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageRequestDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageResourceDto;
@@ -29,6 +30,9 @@ public class CloudStorageController {
 
   @Autowired
   private WebMapperService webMapperService;
+
+  @Autowired
+  private CondenseService condenseService;
 
   @GetMapping
   public ResponseEntity<List<CloudStorageResourceDto>> getAllEntries() {
@@ -57,5 +61,13 @@ public class CloudStorageController {
         .filter(type -> type != CloudStorageType.UNKNOWN)
         .map(CloudStorageType::getDisplayName)
         .toList());
+  }
+
+  @PostMapping("/{id}/condense")
+  public ResponseEntity<String> condenseCloud(@PathVariable int id) {
+    return service.findById(id).map(entry -> {
+      condenseService.condense(entry);
+      return ResponseEntity.ok("Condense triggered for id " + id);
+    }).orElseGet(() -> ResponseEntity.notFound().build());
   }
 }
