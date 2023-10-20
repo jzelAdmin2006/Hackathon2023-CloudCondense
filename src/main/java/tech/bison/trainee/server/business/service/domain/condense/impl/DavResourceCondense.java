@@ -1,7 +1,6 @@
 package tech.bison.trainee.server.business.service.domain.condense.impl;
 
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
-import static tech.bison.trainee.server.business.service.domain.condense.impl.DavStorageCondense.WEBDAV_SERVER_URL;
 import static tech.bison.trainee.server.util.StringUtils.ensureNoTrailingSlash;
 import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
 
@@ -25,6 +24,7 @@ import tech.bison.trainee.server.common.davresource.ResourceURL;
 public class DavResourceCondense implements CondenseResource {
   private final DavResource davResource;
   private final Sardine sardine;
+  private final String webdavServerUrl;
 
   @Override
   public boolean isDirectory() {
@@ -45,7 +45,7 @@ public class DavResourceCondense implements CondenseResource {
   public String getFileContent() {
     try {
       return IOUtils.toString(
-          sardine.get(ensureNoTrailingSlash(new ResourceURL(WEBDAV_SERVER_URL, davResource).toString())),
+          sardine.get(ensureNoTrailingSlash(new ResourceURL(webdavServerUrl, davResource).toString())),
           StandardCharsets.UTF_8);
     } catch (IOException e) {
       return "";
@@ -71,7 +71,7 @@ public class DavResourceCondense implements CondenseResource {
           if (currentChildResource.isDirectory()) {
             childTarget(target, currentChildResource).mkdirs();
             queue.addAll(
-                sardine.list(ensureNoTrailingSlash(new ResourceURL(WEBDAV_SERVER_URL, currentChildResource).toString()))
+                sardine.list(ensureNoTrailingSlash(new ResourceURL(webdavServerUrl, currentChildResource).toString()))
                     .stream()
                     .skip(1)
                     .toList());
@@ -96,7 +96,7 @@ public class DavResourceCondense implements CondenseResource {
   }
 
   private void copyResourceToFile(DavResource resource, final File target) throws IOException {
-    try (InputStream is = sardine.get(ensureNoTrailingSlash(new ResourceURL(WEBDAV_SERVER_URL, resource).toString()))) {
+    try (InputStream is = sardine.get(ensureNoTrailingSlash(new ResourceURL(webdavServerUrl, resource).toString()))) {
       copyInputStreamToFile(is, target);
     }
   }
@@ -104,7 +104,7 @@ public class DavResourceCondense implements CondenseResource {
   @Override
   public void delete() {
     try {
-      final String resourceURL = new ResourceURL(WEBDAV_SERVER_URL, davResource).toString();
+      final String resourceURL = new ResourceURL(webdavServerUrl, davResource).toString();
       sardine.delete(isDirectory() ? ensureTrailingSlash(resourceURL) : ensureNoTrailingSlash(resourceURL));
     } catch (IOException e) {
       e.printStackTrace();
@@ -114,5 +114,11 @@ public class DavResourceCondense implements CondenseResource {
   @Override
   public String getPath() {
     return davResource.getPath();
+  }
+
+  @Override
+  public boolean isInRoot() {
+    final String location = getLocation();
+    return "/".equals(location) || "".equals(location);
   }
 }
