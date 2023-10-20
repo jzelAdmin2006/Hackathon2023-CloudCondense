@@ -23,7 +23,7 @@ import tech.bison.trainee.server.common.davresource.ResourceURL;
 
 public class DavStorageCondense implements CondenseStorage {
 
-  public static final String WEBDAV_SERVER_URL = "http://localhost:80"; // make this dynamic
+  public static final String WEBDAV_SERVER_URL = "http://localhost:80"; // TODO make this dynamic
 
   private final Sardine sardine;
 
