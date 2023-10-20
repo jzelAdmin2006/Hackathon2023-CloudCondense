@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "encryption.secret",
+    "type": "java.lang.String",
+    "description": "Secret used to encrypt/decrypt very sensitive data"
+  },
+  {
+    "name": "archive.tmpworkdir",
+    "type": "java.lang.String",
+    "description": "Temporary directory used for archive operations"
+  }
+]}
