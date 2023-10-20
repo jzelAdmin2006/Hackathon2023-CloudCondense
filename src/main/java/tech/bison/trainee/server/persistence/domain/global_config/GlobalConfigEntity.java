@@ -17,4 +17,5 @@ public class GlobalConfigEntity {
   @Id
   private int id;
   private int scheduleRate;
+  private int condenseAge;
 }

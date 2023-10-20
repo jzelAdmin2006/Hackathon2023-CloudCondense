@@ -1,4 +1,4 @@
 package tech.bison.trainee.server.business.domain.global_config;
 
-public record GlobalConfig(int id, int scheduleRate) {
+public record GlobalConfig(int id, int scheduleRate, int condenseAge) {
 }

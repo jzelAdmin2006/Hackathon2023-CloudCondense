@@ -11,8 +11,8 @@ import tech.bison.trainee.server.business.domain.global_config.GlobalConfig;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageType;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageRequestDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageResourceDto;
-import tech.bison.trainee.server.webservice.adapter.model.global_config.GlobalConfigDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageTypeResourceDto;
+import tech.bison.trainee.server.webservice.adapter.model.global_config.GlobalConfigDto;
 
 @Service
 public class WebMapperService {
@@ -38,10 +38,10 @@ public class WebMapperService {
   }
 
   public GlobalConfigDto toDto(GlobalConfig globalConfig) {
-    return new GlobalConfigDto(globalConfig.scheduleRate());
+    return new GlobalConfigDto(globalConfig.scheduleRate(), globalConfig.condenseAge());
   }
 
   public GlobalConfig fromDto(GlobalConfigDto globalConfigDto) {
-    return new GlobalConfig(1, globalConfigDto.scheduleRate());
+    return new GlobalConfig(1, globalConfigDto.scheduleRate(), globalConfigDto.condenseAge());
   }
 }

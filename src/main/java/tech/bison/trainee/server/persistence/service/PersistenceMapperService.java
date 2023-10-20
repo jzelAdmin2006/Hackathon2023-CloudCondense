@@ -30,11 +30,11 @@ public class PersistenceMapperService {
         encryptionService.encrypt(entry.password()), entry.created());
   }
 
-  public GlobalConfig fromEntity(GlobalConfigEntity entry) {
-    return new GlobalConfig(entry.getId(), entry.getScheduleRate());
+  public GlobalConfig fromEntity(GlobalConfigEntity entity) {
+    return new GlobalConfig(entity.getId(), entity.getScheduleRate(), entity.getCondenseAge());
   }
 
   public GlobalConfigEntity toEntity(GlobalConfig entry) {
-    return new GlobalConfigEntity(entry.id(), entry.scheduleRate());
+    return new GlobalConfigEntity(entry.id(), entry.scheduleRate(), entry.condenseAge());
   }
 }
