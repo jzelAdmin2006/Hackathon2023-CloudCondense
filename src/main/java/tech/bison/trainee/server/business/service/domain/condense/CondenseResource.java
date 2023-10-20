@@ -21,4 +21,6 @@ public interface CondenseResource {
   void delete();
 
   String getPath();
+
+  boolean isInRoot();
 }

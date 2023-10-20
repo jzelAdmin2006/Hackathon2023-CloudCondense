@@ -64,4 +64,9 @@ public class UnsupportedCondense implements CondenseResource, CondenseStorage {
     return "";
   }
 
+  @Override
+  public boolean isInRoot() {
+    return false;
+  }
+
 }

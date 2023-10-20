@@ -5,15 +5,21 @@ import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static tech.bison.trainee.server.common.sevenzip.SevenZip.SEVEN_ZIP_FILE_ENDING;
 import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
+import org.eclipse.jgit.ignore.IgnoreNode;
+import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -53,11 +59,33 @@ public class CondenseService {
     recursiveResources.forEach(resource -> archiving.submit(() -> condense(resource, storage)));
   }
 
-  // TODO implement similar to gitignore
   private List<CondenseResource> filterIgnoring(List<CondenseResource> recursiveResources) {
-    return recursiveResources.stream()
-        .filter(resource -> !resource.getName().equals(CONDENSE_IGNORING_FILE_NAME))
-        .toList();
+    final Optional<CondenseResource> ignoringCriteria = recursiveResources.stream()
+        .filter(this::isCondenseIgnoreFileItself)
+        .findFirst();
+    if (ignoringCriteria.isPresent()) {
+      final String ignorePatterns = ignoringCriteria.get().getFileContent();
+      return recursiveResources.stream()
+          .filter(resource -> !isCondenseIgnoreFileItself(resource))
+          .filter(resource -> !isIgnored(resource.getPath(), ignorePatterns))
+          .toList();
+    } else {
+      return recursiveResources.stream().filter(resource -> !isCondenseIgnoreFileItself(resource)).toList();
+    }
+  }
+
+  private boolean isCondenseIgnoreFileItself(CondenseResource resource) {
+    return resource.getName().equals(CONDENSE_IGNORING_FILE_NAME) && resource.isInRoot();
+  }
+
+  private boolean isIgnored(String path, String gitignoreContent) {
+    IgnoreNode ignoreNode = new IgnoreNode();
+    try (InputStream stream = new ByteArrayInputStream(gitignoreContent.getBytes(StandardCharsets.UTF_8))) {
+      ignoreNode.parse(stream);
+    } catch (IOException e) {
+      throw new RuntimeException("Fehler beim Parsen des gitignore-Inhalts", e);
+    }
+    return ignoreNode.isIgnored(path, true) == MatchResult.IGNORED;
   }
 
   // TODO implement similar to gitignore
