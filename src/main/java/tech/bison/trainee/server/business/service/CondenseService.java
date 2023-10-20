@@ -39,7 +39,9 @@ public class CondenseService {
   }
 
   private void condense(CloudStorage storage) {
-    newSingleThreadExecutor().submit(() -> condense(condenseFactory.translate(storage)));
+    try (ExecutorService condenseExecutor = newSingleThreadExecutor()) {
+      condenseExecutor.submit(() -> condense(condenseFactory.translate(storage)));
+    }
   }
 
   private void condense(CondenseStorage storage) {
