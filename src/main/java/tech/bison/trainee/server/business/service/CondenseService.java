@@ -1,18 +1,9 @@
 package tech.bison.trainee.server.business.service;
 
-import jakarta.annotation.PostConstruct;
-import lombok.AllArgsConstructor;
-import org.eclipse.jgit.ignore.IgnoreNode;
-import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
-import tech.bison.trainee.server.business.service.domain.condense.CondenseFactory;
-import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
-import tech.bison.trainee.server.business.service.domain.condense.CondenseStorage;
-import tech.bison.trainee.server.common.sevenzip.SevenZip;
-import tech.bison.trainee.server.config.ArchiveConfig;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.apache.commons.io.FileUtils.cleanDirectory;
+import static tech.bison.trainee.server.common.sevenzip.SevenZip.SEVEN_ZIP_FILE_ENDING;
+import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -20,23 +11,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
-import static org.apache.commons.io.FileUtils.cleanDirectory;
-import static tech.bison.trainee.server.common.sevenzip.SevenZip.SEVEN_ZIP_FILE_ENDING;
-import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
+import org.eclipse.jgit.ignore.IgnoreNode;
+import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
+import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
+import tech.bison.trainee.server.business.service.domain.condense.CondenseFactory;
+import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
+import tech.bison.trainee.server.business.service.domain.condense.CondenseStorage;
+import tech.bison.trainee.server.common.sevenzip.SevenZip;
+import tech.bison.trainee.server.config.ArchiveConfig;
 
 @Component
 @Service
 @AllArgsConstructor
 public class CondenseService {
-  private static final int CONDENSE_AGE_MS = /* 24 * 60 * 60 * 1000 */ 0; // TODO make this dynamic
   private static final String CONDENSE_IGNORING_FILE_NAME = ".condenseignore";
+  private int condenseAge;
   private final ArchiveConfig archiveConfig;
   private final CloudStorageService storageService;
   private final CondenseFactory condenseFactory;
@@ -49,6 +54,7 @@ public class CondenseService {
   @PostConstruct
   public void initializeScheduler() {
     updateScheduler();
+    condenseAge = globalConfigService.get().condenseAge();
   }
 
   public void updateScheduler() {
@@ -117,7 +123,7 @@ public class CondenseService {
   }
 
   private boolean shouldBeArchived(CondenseResource resource) {
-    return resource.getModified().before(new Date(new Date().getTime() - CONDENSE_AGE_MS))
+    return resource.getModified().before(new Date(new Date().getTime() - condenseAge))
         && (resource.isDirectory() || !resource.getName().endsWith(SEVEN_ZIP_FILE_ENDING));
   }
 
