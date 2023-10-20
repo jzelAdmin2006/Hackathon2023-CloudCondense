@@ -3,6 +3,7 @@ package tech.bison.trainee.server.webservice.adapter.rest;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,10 +65,10 @@ public class CloudStorageController {
   }
 
   @PostMapping("/{id}/condense")
-  public ResponseEntity<String> condenseCloud(@PathVariable int id) {
+  public ResponseEntity<Map<String, String>> condenseCloud(@PathVariable int id) {
     return service.findById(id).map(entry -> {
       condenseService.condense(entry);
-      return ResponseEntity.ok(String.format("Condense for cloud with id %d successful", id));
+      return ResponseEntity.ok(Map.of("message", String.format("Condense for cloud with id %d successful", id)));
     }).orElseGet(() -> ResponseEntity.notFound().build());
   }
 }
