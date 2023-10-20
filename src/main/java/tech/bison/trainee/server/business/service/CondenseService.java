@@ -3,7 +3,6 @@ package tech.bison.trainee.server.business.service;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
