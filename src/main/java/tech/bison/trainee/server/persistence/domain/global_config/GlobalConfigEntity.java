@@ -1,22 +1,20 @@
 package tech.bison.trainee.server.persistence.domain.global_config;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageType;
-
-import java.util.Date;
 
 @Entity
-@Table(name = "cloud_storage")
+@Table(name = "global_config")
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public class GlobalConfigEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private int scheduleRate;
+  @Id
+  private int id;
+  private int scheduleRate;
 }
