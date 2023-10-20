@@ -31,7 +31,7 @@ public class SevenZip {
       execute(processBuilder);
     } catch (InterruptedException e) {
       currentThread().interrupt();
-      throw new RuntimeException("7z extraction process was interrupted", e);
+      e.printStackTrace();
     }
   }
 

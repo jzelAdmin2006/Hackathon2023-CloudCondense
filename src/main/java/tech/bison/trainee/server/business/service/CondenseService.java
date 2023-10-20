@@ -79,11 +79,11 @@ public class CondenseService {
   }
 
   private boolean isIgnored(String path, String gitignoreContent) {
-    IgnoreNode ignoreNode = new IgnoreNode();
+    final IgnoreNode ignoreNode = new IgnoreNode();
     try (InputStream stream = new ByteArrayInputStream(gitignoreContent.getBytes(StandardCharsets.UTF_8))) {
       ignoreNode.parse(stream);
     } catch (IOException e) {
-      throw new RuntimeException("Fehler beim Parsen des gitignore-Inhalts", e);
+      e.printStackTrace();
     }
     return ignoreNode.isIgnored(path, true) == MatchResult.IGNORED;
   }
