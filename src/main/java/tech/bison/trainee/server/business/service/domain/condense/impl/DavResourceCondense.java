@@ -115,4 +115,10 @@ public class DavResourceCondense implements CondenseResource {
   public String getPath() {
     return davResource.getPath();
   }
+
+  @Override
+  public boolean isInRoot() {
+    final String location = getLocation();
+    return "/".equals(location) || "".equals(location);
+  }
 }
