@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class CloudCondensePocApplication {
+public class CloudCondenseApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(CloudCondensePocApplication.class, args);
+    SpringApplication.run(CloudCondenseApplication.class, args);
   }
 
 }
