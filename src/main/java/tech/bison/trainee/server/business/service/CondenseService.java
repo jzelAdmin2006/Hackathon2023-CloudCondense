@@ -1,20 +1,11 @@
 package tech.bison.trainee.server.business.service;
 
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
-import static org.apache.commons.io.FileUtils.cleanDirectory;
-import static tech.bison.trainee.server.common.sevenzip.SevenZip.SEVEN_ZIP_FILE_ENDING;
-import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseFactory;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
@@ -22,6 +13,21 @@ import tech.bison.trainee.server.business.service.domain.condense.CondenseStorag
 import tech.bison.trainee.server.common.sevenzip.SevenZip;
 import tech.bison.trainee.server.config.ArchiveConfig;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.apache.commons.io.FileUtils.cleanDirectory;
+import static tech.bison.trainee.server.common.sevenzip.SevenZip.SEVEN_ZIP_FILE_ENDING;
+import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
+
+@Component
 @Service
 @AllArgsConstructor
 public class CondenseService {
@@ -32,9 +38,21 @@ public class CondenseService {
   private final CloudStorageService storageService;
   private final CondenseFactory condenseFactory;
   private final ExecutorService archiving;
+  @Autowired
+  private final GlobalConfigService globalConfigService;
 
-  // TODO make scheduleRate dynamic
-  @Scheduled(fixedRate = 3600000)
+  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+  @PostConstruct
+  public void initializeScheduler() {
+    updateScheduler();
+  }
+
+  public void updateScheduler() {
+    long rate = globalConfigService.get().scheduleRate();
+    scheduler.scheduleAtFixedRate(this::condenseClouds, 0, rate, TimeUnit.MILLISECONDS);
+  }
+
   public void condenseClouds() {
     storageService.getAllCloudStorageEntries().forEach(this::condense);
   }
