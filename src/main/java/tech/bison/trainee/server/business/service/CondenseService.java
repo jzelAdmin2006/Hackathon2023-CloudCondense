@@ -1,30 +1,9 @@
 package tech.bison.trainee.server.business.service;
 
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
-import static org.apache.commons.io.FileUtils.cleanDirectory;
-import static tech.bison.trainee.server.common.sevenzip.SevenZip.SEVEN_ZIP_FILE_ENDING;
-import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-
-import org.eclipse.jgit.ignore.IgnoreNode;
-import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import org.eclipse.jgit.ignore.IgnoreNode;
+import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -35,10 +14,13 @@ import tech.bison.trainee.server.business.service.domain.condense.CondenseStorag
 import tech.bison.trainee.server.common.sevenzip.SevenZip;
 import tech.bison.trainee.server.config.ArchiveConfig;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
