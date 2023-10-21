@@ -2,7 +2,7 @@ package tech.bison.trainee.server.business.service.domain.condense;
 
 import org.springframework.stereotype.Service;
 
-import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
+import tech.bison.trainee.server.business.domain.CloudStorage;
 import tech.bison.trainee.server.business.service.domain.condense.impl.DavStorageCondense;
 import tech.bison.trainee.server.business.service.domain.condense.impl.UnsupportedCondense;
 

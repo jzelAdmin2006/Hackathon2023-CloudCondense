@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
-import tech.bison.trainee.server.business.domain.global_config.GlobalConfig;
+import tech.bison.trainee.server.business.domain.CloudStorage;
+import tech.bison.trainee.server.business.domain.GlobalConfig;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageEntity;
 import tech.bison.trainee.server.persistence.domain.global_config.GlobalConfigEntity;
 

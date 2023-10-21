@@ -1,7 +1,7 @@
 package tech.bison.trainee.server.persistence.domain.global_config;
 
 import org.springframework.stereotype.Service;
-import tech.bison.trainee.server.business.domain.global_config.GlobalConfig;
+import tech.bison.trainee.server.business.domain.GlobalConfig;
 import tech.bison.trainee.server.persistence.service.PersistenceMapperService;
 
 @Service

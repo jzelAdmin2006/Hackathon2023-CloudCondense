@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
-import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
-import tech.bison.trainee.server.business.domain.global_config.GlobalConfig;
+import tech.bison.trainee.server.business.domain.CloudStorage;
+import tech.bison.trainee.server.business.domain.GlobalConfig;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageType;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageRequestDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageResourceDto;

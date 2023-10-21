@@ -16,7 +16,7 @@ import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
 
 import okhttp3.HttpUrl;
-import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
+import tech.bison.trainee.server.business.domain.CloudStorage;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseStorage;
 import tech.bison.trainee.server.common.davresource.ResourceURL;

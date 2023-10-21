@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
+import tech.bison.trainee.server.business.domain.CloudStorage;
 import tech.bison.trainee.server.persistence.service.PersistenceMapperService;
 
 @Service

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
+import tech.bison.trainee.server.business.domain.CloudStorage;
 import tech.bison.trainee.server.business.service.CloudStorageService;
 import tech.bison.trainee.server.business.service.CondenseService;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageType;

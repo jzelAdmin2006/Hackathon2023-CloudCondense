@@ -1,4 +1,4 @@
-package tech.bison.trainee.server.business.domain.cloud_storage;
+package tech.bison.trainee.server.business.domain;
 
 import java.util.Date;
 import java.util.Optional;

@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
+import tech.bison.trainee.server.business.domain.CloudStorage;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseFactory;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseStorage;
