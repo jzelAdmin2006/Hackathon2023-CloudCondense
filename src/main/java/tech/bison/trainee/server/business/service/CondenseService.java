@@ -22,7 +22,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.annotation.Resource;
 import org.eclipse.jgit.ignore.IgnoreNode;
 import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,9 +94,9 @@ public class CondenseService {
   }
 
   public List<CondenseResource> filter(List<CondenseResource> condenseResources) {
-    List<CondenseResource> withoutFlac = condenseResources.stream().filter(
-        (condenseResource) -> !isCondenseIgnoreFlac(condenseResource)
-    ).toList();
+    List<CondenseResource> withoutFlac = condenseResources.stream()
+        .filter((condenseResource) -> !isCondenseIgnoreFlac(condenseResource))
+        .toList();
     return filterIgnoring(withoutFlac);
   }
 
