@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
+import tech.bison.trainee.server.business.domain.global_config.GlobalConfig;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageEntity;
+import tech.bison.trainee.server.persistence.domain.global_config.GlobalConfigEntity;
 
 @Service
 public class PersistenceMapperService {
@@ -28,4 +30,11 @@ public class PersistenceMapperService {
         encryptionService.encrypt(entry.password()), entry.created());
   }
 
+  public GlobalConfig fromEntity(GlobalConfigEntity entity) {
+    return new GlobalConfig(entity.getId(), entity.getScheduleRate(), entity.getCondenseAge());
+  }
+
+  public GlobalConfigEntity toEntity(GlobalConfig entry) {
+    return new GlobalConfigEntity(entry.id(), entry.scheduleRate(), entry.condenseAge());
+  }
 }

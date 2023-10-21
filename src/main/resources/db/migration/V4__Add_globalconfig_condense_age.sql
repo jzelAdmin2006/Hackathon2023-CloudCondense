@@ -1,0 +1,3 @@
+ALTER TABLE global_config
+ADD condense_age INT NOT NULL
+DEFAULT 86400000

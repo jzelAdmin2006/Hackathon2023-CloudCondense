@@ -17,13 +17,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jgit.ignore.IgnoreNode;
 import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import tech.bison.trainee.server.business.domain.cloud_storage.CloudStorage;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseFactory;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
@@ -31,18 +36,30 @@ import tech.bison.trainee.server.business.service.domain.condense.CondenseStorag
 import tech.bison.trainee.server.common.sevenzip.SevenZip;
 import tech.bison.trainee.server.config.ArchiveConfig;
 
+@Component
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CondenseService {
-  private static final int CONDENSE_AGE_MS = /* 24 * 60 * 60 * 1000 */ 0; // TODO make this dynamic
   private static final String CONDENSE_IGNORING_FILE_NAME = ".condenseignore";
   private final ArchiveConfig archiveConfig;
   private final CloudStorageService storageService;
   private final CondenseFactory condenseFactory;
   private final ExecutorService archiving;
+  @Autowired
+  private final GlobalConfigService globalConfigService;
 
-  // TODO make scheduleRate dynamic
-  @Scheduled(fixedRate = 3600000)
+  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+  @PostConstruct
+  public void initializeScheduler() {
+    updateScheduler();
+  }
+
+  public void updateScheduler() {
+    final long rate = globalConfigService.get().scheduleRate();
+    scheduler.scheduleAtFixedRate(this::condenseClouds, 0, rate, TimeUnit.MILLISECONDS);
+  }
+
   public void condenseClouds() {
     storageService.getAllCloudStorageEntries().forEach(this::condense);
   }
@@ -104,7 +121,7 @@ public class CondenseService {
   }
 
   private boolean shouldBeArchived(CondenseResource resource) {
-    return resource.getModified().before(new Date(new Date().getTime() - CONDENSE_AGE_MS))
+    return resource.getModified().before(new Date(new Date().getTime() - globalConfigService.get().condenseAge()))
         && (resource.isDirectory() || !resource.getName().endsWith(SEVEN_ZIP_FILE_ENDING));
   }
 
