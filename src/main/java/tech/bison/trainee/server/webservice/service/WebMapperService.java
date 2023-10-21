@@ -48,7 +48,7 @@ public class WebMapperService {
   }
 
   public MetricDto toDto(Metric metric) {
-    return new MetricDto(metric.id());
+    return new MetricDto(metric.savedDiskSpace());
   }
 
   public Metric fromDto(MetricDto metricDto) {
