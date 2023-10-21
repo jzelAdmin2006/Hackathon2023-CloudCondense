@@ -101,6 +101,7 @@ public class CondenseService {
       final String ignorePatterns = ignoringCriteria.get().getFileContent();
       return recursiveResources.stream()
           .filter(resource -> !isCondenseIgnoreFileItself(resource))
+          .filter(resource -> !isCondenseIgnoreFlac(resource))
           .filter(resource -> !isIgnored(resource.getPath(), ignorePatterns))
           .toList();
     } else {
@@ -110,6 +111,10 @@ public class CondenseService {
 
   private boolean isCondenseIgnoreFileItself(CondenseResource resource) {
     return resource.getName().equals(CONDENSE_IGNORING_FILE_NAME) && resource.isInRoot();
+  }
+
+  private boolean isCondenseIgnoreFlac(CondenseResource resource) {
+    return resource.getPath().endsWith(".flac");
   }
 
   private boolean isIgnored(String path, String gitignoreContent) {
