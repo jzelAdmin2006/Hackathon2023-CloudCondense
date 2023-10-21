@@ -32,7 +32,7 @@ public class GlobalConfigController {
 
   @PutMapping
   ResponseEntity<GlobalConfigDto> update(@RequestBody GlobalConfigDto globalConfigDto) {
-    ResponseEntity<GlobalConfigDto> response = ResponseEntity
+    final ResponseEntity<GlobalConfigDto> response = ResponseEntity
         .ok(webMapperService.toDto(service.update(webMapperService.fromDto(globalConfigDto))));
     condenseService.updateScheduler();
     return response;

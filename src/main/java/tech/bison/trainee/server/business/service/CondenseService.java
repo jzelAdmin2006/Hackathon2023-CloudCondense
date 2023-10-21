@@ -58,7 +58,7 @@ public class CondenseService {
   }
 
   public void updateScheduler() {
-    long rate = globalConfigService.get().scheduleRate();
+    final long rate = globalConfigService.get().scheduleRate();
     scheduler.scheduleAtFixedRate(this::condenseClouds, 0, rate, TimeUnit.MILLISECONDS);
   }
 
