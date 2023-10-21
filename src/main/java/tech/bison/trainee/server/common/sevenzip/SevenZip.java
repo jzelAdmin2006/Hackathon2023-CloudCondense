@@ -16,7 +16,7 @@ public class SevenZip {
 
 
   public double compress(File input, File archive) throws IOException {
-    long originalSize = input.length();
+    final long originalSize = input.length();
     final ProcessBuilder processBuilder = new ProcessBuilder("7z", "a", "-t7z", "-mx=9", archive.getAbsolutePath(),
         input.getAbsolutePath());
     try {
@@ -25,12 +25,12 @@ public class SevenZip {
       currentThread().interrupt();
       throw new IOException("7z compression process was interrupted", e);
     }
-    long compressedSize = archive.length();
+    final long compressedSize = archive.length();
     return ((double) (originalSize - compressedSize) / MEGABYTE);
   }
 
   public double extractTo(File archive, File extractionDir) throws IOException {
-    long compressedSize = archive.length();
+    final long compressedSize = archive.length();
     final ProcessBuilder processBuilder = new ProcessBuilder(
             "7z", "x", archive.getAbsolutePath(), "-o" + extractionDir, "-aot"
     );
@@ -40,7 +40,7 @@ public class SevenZip {
       currentThread().interrupt();
       e.printStackTrace();
     }
-    long extractedSize = extractionDir.length();
+    final long extractedSize = extractionDir.length();
     return ((double) compressedSize - extractedSize) / MEGABYTE;
   }
 

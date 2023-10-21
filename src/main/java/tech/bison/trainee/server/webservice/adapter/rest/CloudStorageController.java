@@ -70,7 +70,7 @@ public class CloudStorageController {
   public ResponseEntity<Map<String, String>> condenseCloud(@PathVariable int id) {
     return service.findById(id).map(entry -> {
       condenseService.condense(entry);
-      return ResponseEntity.ok(Map.of("message", String.format("Condense for cloud with id %d queued", id)));
+      return ResponseEntity.ok(Map.of("message", "Condense for cloud with id %d queued".formatted(id)));
     }).orElseGet(() -> ResponseEntity.notFound().build());
   }
 }
