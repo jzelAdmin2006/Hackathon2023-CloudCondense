@@ -1,21 +1,12 @@
 package tech.bison.trainee.server.common.sevenzip;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import tech.bison.trainee.server.business.domain.Metric;
-import tech.bison.trainee.server.business.service.MetricService;
-
-import static java.lang.Thread.currentThread;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.util.logging.Logger;
+
+import static java.lang.Thread.currentThread;
 
 public class SevenZip {
   private static final Logger LOGGER = Logger.getLogger(SevenZip.class.getName());
