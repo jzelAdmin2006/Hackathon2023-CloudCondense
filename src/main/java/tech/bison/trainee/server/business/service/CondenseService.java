@@ -134,12 +134,12 @@ public class CondenseService {
     }
   }
 
-  // TODO prevent unwanted overwriting of audio files with the same name
   private void useMoreEfficientAudioCodec(CondenseResource resource, CondenseStorage storage) {
     try {
       final File tmpWorkDir = new File(archiveConfig.getTmpWorkDir());
       final File source = new File(tmpWorkDir, resource.getName());
       resource.copyTo(source);
+
       final File target = new File(tmpWorkDir, changeFileExtension(resource.getName(), FLAC_FILE_ENDING));
 
       final AudioAttributes audio = new AudioAttributes();

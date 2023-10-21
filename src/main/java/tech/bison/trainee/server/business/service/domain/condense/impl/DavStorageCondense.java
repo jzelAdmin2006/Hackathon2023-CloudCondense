@@ -65,7 +65,25 @@ public class DavStorageCondense implements CondenseStorage {
   @Override
   public void upload(File file, String location) {
     try (InputStream is = new FileInputStream(file)) {
-      sardine.put(HttpUrl.parse(webdavServerUrl).resolve(location + file.getName()).toString(), is);
+      final List<String> list = sardine.list(HttpUrl.parse(webdavServerUrl).resolve(location).toString())
+          .stream()
+          .map(DavResource::getName)
+          .skip(1)
+          .toList();
+      String fileName = file.getName();
+
+      int counter = 2;
+      while (list.contains(fileName)) {
+        final int dotIndex = fileName.lastIndexOf(".");
+        fileName = file.getName();
+        if (dotIndex != -1) {
+          fileName = fileName.substring(0, dotIndex) + (counter++) + fileName.substring(dotIndex, fileName.length());
+        } else {
+          fileName += counter++;
+        }
+      }
+
+      sardine.put(HttpUrl.parse(webdavServerUrl).resolve(location + fileName).toString(), is);
     } catch (IOException e) {
       e.printStackTrace();
     }
