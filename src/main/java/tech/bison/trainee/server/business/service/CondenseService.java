@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.annotation.Resource;
 import org.eclipse.jgit.ignore.IgnoreNode;
 import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +83,7 @@ public class CondenseService {
   }
 
   private void condense(CondenseStorage storage) {
-    final List<CondenseResource> recursiveResources = filterIgnoring(storage.recursivelyList());
+    final List<CondenseResource> recursiveResources = filter(storage.recursivelyList());
     recursiveResources.forEach(resource -> archiving.submit(() -> {
       if (Arrays.stream(RawAudioFormat.values())
           .anyMatch(format -> resource.getName().endsWith(format.getFileEnding()))) {
@@ -93,6 +94,13 @@ public class CondenseService {
     }));
   }
 
+  public List<CondenseResource> filter(List<CondenseResource> condenseResources) {
+    List<CondenseResource> withoutFlac = condenseResources.stream().filter(
+        (condenseResource) -> !isCondenseIgnoreFlac(condenseResource)
+    ).toList();
+    return filterIgnoring(withoutFlac);
+  }
+
   private List<CondenseResource> filterIgnoring(List<CondenseResource> recursiveResources) {
     final Optional<CondenseResource> ignoringCriteria = recursiveResources.stream()
         .filter(this::isCondenseIgnoreFileItself)
@@ -101,6 +109,7 @@ public class CondenseService {
       final String ignorePatterns = ignoringCriteria.get().getFileContent();
       return recursiveResources.stream()
           .filter(resource -> !isCondenseIgnoreFileItself(resource))
+          .filter(resource -> !isCondenseIgnoreFlac(resource))
           .filter(resource -> !isIgnored(resource.getPath(), ignorePatterns))
           .toList();
     } else {
@@ -110,6 +119,10 @@ public class CondenseService {
 
   private boolean isCondenseIgnoreFileItself(CondenseResource resource) {
     return resource.getName().equals(CONDENSE_IGNORING_FILE_NAME) && resource.isInRoot();
+  }
+
+  private boolean isCondenseIgnoreFlac(CondenseResource resource) {
+    return resource.getPath().endsWith(".flac");
   }
 
   private boolean isIgnored(String path, String gitignoreContent) {
