@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import tech.bison.trainee.server.business.domain.CloudStorage;
 import tech.bison.trainee.server.business.domain.GlobalConfig;
+import tech.bison.trainee.server.business.domain.Metric;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageEntity;
 import tech.bison.trainee.server.persistence.domain.global_config.GlobalConfigEntity;
+import tech.bison.trainee.server.persistence.domain.metric.MetricEntity;
 
 @Service
 public class PersistenceMapperService {
@@ -36,5 +38,13 @@ public class PersistenceMapperService {
 
   public GlobalConfigEntity toEntity(GlobalConfig entry) {
     return new GlobalConfigEntity(entry.id(), entry.scheduleRate(), entry.condenseAge());
+  }
+
+  public Metric fromEntity(MetricEntity entity) {
+    return new Metric(entity.getId(), entity.getSavedDiskSpace());
+  }
+
+  public MetricEntity toEntity(Metric entry) {
+    return new MetricEntity(entry.id(), entry.savedDiskSpace());
   }
 }
