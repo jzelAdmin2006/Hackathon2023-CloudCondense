@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import tech.bison.trainee.server.business.domain.CloudStorage;
+import tech.bison.trainee.server.business.domain.Metric;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseFactory;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseStorage;
@@ -47,6 +48,8 @@ public class CondenseService {
   private final ExecutorService archiving;
   @Autowired
   private final GlobalConfigService globalConfigService;
+  @Autowired
+  private final MetricService metricService;
 
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -135,7 +138,8 @@ public class CondenseService {
         extractExistingArchives(target);
       }
       final File archive = new File(archiveConfig.getTmpWorkDir(), target.getName() + SEVEN_ZIP_FILE_ENDING);
-      new SevenZip().compress(target, archive);
+      double saving = new SevenZip().compress(target, archive);
+      metricService.update(new Metric(1, metricService.get().savedDiskSpace() + saving));
       replaceResource(resource, archive, storage);
     } finally {
       cleanDirectory(tmpWorkDir);
@@ -153,9 +157,10 @@ public class CondenseService {
         if (file.isDirectory()) {
           directories.add(file);
         } else if (file.getName().endsWith(SEVEN_ZIP_FILE_ENDING)) {
-          new SevenZip().extractTo(file,
+          double saving = new SevenZip().extractTo(file,
               new File(file.getParentFile(), file.getName().replace(SEVEN_ZIP_FILE_ENDING, "")).getParentFile());
           Files.delete(file.toPath());
+          metricService.update(new Metric(1, metricService.get().savedDiskSpace() + saving));
         }
       }
     }

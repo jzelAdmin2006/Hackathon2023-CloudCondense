@@ -1,11 +1,20 @@
 package tech.bison.trainee.server.common.sevenzip;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import tech.bison.trainee.server.business.domain.Metric;
+import tech.bison.trainee.server.business.service.MetricService;
+
 import static java.lang.Thread.currentThread;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.logging.Logger;
 
 public class SevenZip {
@@ -13,7 +22,9 @@ public class SevenZip {
 
   public static final String SEVEN_ZIP_FILE_ENDING = ".7z";
 
-  public void compress(File input, File archive) throws IOException {
+
+  public double compress(File input, File archive) throws IOException {
+    long originalSize = input.length();
     final ProcessBuilder processBuilder = new ProcessBuilder("7z", "a", "-t7z", "-mx=9", archive.getAbsolutePath(),
         input.getAbsolutePath());
     try {
@@ -22,17 +33,23 @@ public class SevenZip {
       currentThread().interrupt();
       throw new IOException("7z compression process was interrupted", e);
     }
+    long compressedSize = archive.length();
+    return ((double) (originalSize - compressedSize) / 1_000_000);
   }
 
-  public void extractTo(File archive, File extractionDir) throws IOException {
-    final ProcessBuilder processBuilder = new ProcessBuilder("7z", "x", archive.getAbsolutePath(), "-o" + extractionDir,
-        "-aot");
+  public double extractTo(File archive, File extractionDir) throws IOException {
+    long compressedSize = archive.length();
+    final ProcessBuilder processBuilder = new ProcessBuilder(
+            "7z", "x", archive.getAbsolutePath(), "-o" + extractionDir, "-aot"
+    );
     try {
       execute(processBuilder);
     } catch (InterruptedException e) {
       currentThread().interrupt();
       e.printStackTrace();
     }
+    long extractedSize = extractionDir.length();
+    return ((double) compressedSize - extractedSize) / 1_000_000;
   }
 
   private void execute(final ProcessBuilder processBuilder) throws IOException, InterruptedException {

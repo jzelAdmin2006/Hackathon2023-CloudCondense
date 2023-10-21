@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 
 import tech.bison.trainee.server.business.domain.CloudStorage;
 import tech.bison.trainee.server.business.domain.GlobalConfig;
+import tech.bison.trainee.server.business.domain.Metric;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageType;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageRequestDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageResourceDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageTypeResourceDto;
 import tech.bison.trainee.server.webservice.adapter.model.global_config.GlobalConfigDto;
+import tech.bison.trainee.server.webservice.adapter.model.metric.MetricDto;
 
 @Service
 public class WebMapperService {
@@ -43,5 +45,13 @@ public class WebMapperService {
 
   public GlobalConfig fromDto(GlobalConfigDto globalConfigDto) {
     return new GlobalConfig(1, globalConfigDto.scheduleRate(), globalConfigDto.condenseAge());
+  }
+
+  public MetricDto toDto(Metric metric) {
+    return new MetricDto(metric.id());
+  }
+
+  public Metric fromDto(MetricDto metricDto) {
+    return new Metric(1, metricDto.savedDiskSpace());
   }
 }
