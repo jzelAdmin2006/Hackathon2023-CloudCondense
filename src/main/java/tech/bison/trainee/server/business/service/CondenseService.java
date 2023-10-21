@@ -49,6 +49,7 @@ public class CondenseService {
   private static final String FLAC_FILE_ENDING = ".flac";
   private static final String FLAC_CODEC = "flac";
   private static final String CONDENSE_IGNORING_FILE_NAME = ".condenseignore";
+  public static final int MEGABYTE = 1_000_000;
   private final ArchiveConfig archiveConfig;
   private final CloudStorageService storageService;
   private final CondenseFactory condenseFactory;
@@ -143,6 +144,8 @@ public class CondenseService {
       final File source = new File(tmpWorkDir, resource.getName());
       resource.copyTo(source);
 
+      long uncompressedSize = source.length();
+
       final File target = new File(tmpWorkDir, changeFileExtension(resource.getName(), FLAC_FILE_ENDING));
 
       final AudioAttributes audio = new AudioAttributes();
@@ -156,7 +159,12 @@ public class CondenseService {
 
       encoder.encode(source, target, attrs);
 
+      long compressedSize = target.length();
+
       replaceResource(resource, target, storage);
+
+      double saving = ((double) uncompressedSize - compressedSize) / MEGABYTE;
+      metricService.update(new Metric(1, metricService.get().savedDiskSpace() + saving));
     } catch (EncoderException e) {
       e.printStackTrace();
     }
