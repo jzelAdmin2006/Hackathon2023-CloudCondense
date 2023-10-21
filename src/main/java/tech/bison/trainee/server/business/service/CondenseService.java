@@ -95,7 +95,7 @@ public class CondenseService {
 
   public List<CondenseResource> filter(List<CondenseResource> condenseResources) {
     final List<CondenseResource> withoutFlac = condenseResources.stream()
-        .filter(condenseResource -> isNotFlac(condenseResource))
+        .filter(this::isNotFlac)
         .toList();
     return filterIgnoring(withoutFlac);
   }
@@ -108,7 +108,6 @@ public class CondenseService {
       final String ignorePatterns = ignoringCriteria.get().getFileContent();
       return recursiveResources.stream()
           .filter(resource -> !isCondenseIgnoreFileItself(resource))
-          .filter(this::isNotFlac)
           .filter(resource -> !isIgnored(resource.getPath(), ignorePatterns))
           .toList();
     } else {
