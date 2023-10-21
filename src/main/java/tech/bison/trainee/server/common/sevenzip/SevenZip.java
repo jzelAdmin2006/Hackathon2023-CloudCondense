@@ -12,6 +12,7 @@ public class SevenZip {
   private static final Logger LOGGER = Logger.getLogger(SevenZip.class.getName());
 
   public static final String SEVEN_ZIP_FILE_ENDING = ".7z";
+  public static final int MEGABYTE = 1_000_000;
 
 
   public double compress(File input, File archive) throws IOException {
@@ -25,7 +26,7 @@ public class SevenZip {
       throw new IOException("7z compression process was interrupted", e);
     }
     long compressedSize = archive.length();
-    return ((double) (originalSize - compressedSize) / 1_000_000);
+    return ((double) (originalSize - compressedSize) / MEGABYTE);
   }
 
   public double extractTo(File archive, File extractionDir) throws IOException {
@@ -40,7 +41,7 @@ public class SevenZip {
       e.printStackTrace();
     }
     long extractedSize = extractionDir.length();
-    return ((double) compressedSize - extractedSize) / 1_000_000;
+    return ((double) compressedSize - extractedSize) / MEGABYTE;
   }
 
   private void execute(final ProcessBuilder processBuilder) throws IOException, InterruptedException {
