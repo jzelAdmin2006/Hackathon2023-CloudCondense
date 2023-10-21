@@ -94,8 +94,8 @@ public class CondenseService {
   }
 
   public List<CondenseResource> filter(List<CondenseResource> condenseResources) {
-    List<CondenseResource> withoutFlac = condenseResources.stream()
-        .filter((condenseResource) -> !isCondenseIgnoreFlac(condenseResource))
+    final List<CondenseResource> withoutFlac = condenseResources.stream()
+        .filter(condenseResource -> !isCondenseIgnoreFlac(condenseResource))
         .toList();
     return filterIgnoring(withoutFlac);
   }
@@ -121,7 +121,7 @@ public class CondenseService {
   }
 
   private boolean isCondenseIgnoreFlac(CondenseResource resource) {
-    return resource.getPath().endsWith(".flac");
+    return resource.getPath().endsWith(FLAC_FILE_ENDING);
   }
 
   private boolean isIgnored(String path, String gitignoreContent) {
