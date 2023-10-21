@@ -41,7 +41,6 @@ import tech.bison.trainee.server.config.ArchiveConfig;
 @RequiredArgsConstructor
 public class CondenseService {
   private static final String CONDENSE_IGNORING_FILE_NAME = ".condenseignore";
-  private int condenseAge;
   private final ArchiveConfig archiveConfig;
   private final CloudStorageService storageService;
   private final CondenseFactory condenseFactory;
@@ -54,7 +53,6 @@ public class CondenseService {
   @PostConstruct
   public void initializeScheduler() {
     updateScheduler();
-    condenseAge = globalConfigService.get().condenseAge();
   }
 
   public void updateScheduler() {
@@ -123,7 +121,7 @@ public class CondenseService {
   }
 
   private boolean shouldBeArchived(CondenseResource resource) {
-    return resource.getModified().before(new Date(new Date().getTime() - condenseAge))
+    return resource.getModified().before(new Date(new Date().getTime() - globalConfigService.get().condenseAge()))
         && (resource.isDirectory() || !resource.getName().endsWith(SEVEN_ZIP_FILE_ENDING));
   }
 
