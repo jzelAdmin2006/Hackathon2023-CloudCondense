@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.annotation.Resource;
 import org.eclipse.jgit.ignore.IgnoreNode;
 import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import it.sauronsoftware.jave.EncodingAttributes;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import tech.bison.trainee.server.business.domain.CloudStorage;
+import tech.bison.trainee.server.business.domain.Metric;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseFactory;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseStorage;
@@ -48,12 +50,15 @@ public class CondenseService {
   private static final String FLAC_FILE_ENDING = ".flac";
   private static final String FLAC_CODEC = "flac";
   private static final String CONDENSE_IGNORING_FILE_NAME = ".condenseignore";
+  public static final int MEGABYTE = 1_000_000;
   private final ArchiveConfig archiveConfig;
   private final CloudStorageService storageService;
   private final CondenseFactory condenseFactory;
   private final ExecutorService archiving;
   @Autowired
   private final GlobalConfigService globalConfigService;
+  @Autowired
+  private final MetricService metricService;
 
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -78,7 +83,7 @@ public class CondenseService {
   }
 
   private void condense(CondenseStorage storage) {
-    final List<CondenseResource> recursiveResources = filterIgnoring(storage.recursivelyList());
+    final List<CondenseResource> recursiveResources = filter(storage.recursivelyList());
     recursiveResources.forEach(resource -> archiving.submit(() -> {
       if (Arrays.stream(RawAudioFormat.values())
           .anyMatch(format -> resource.getName().endsWith(format.getFileEnding()))) {
@@ -89,6 +94,13 @@ public class CondenseService {
     }));
   }
 
+  public List<CondenseResource> filter(List<CondenseResource> condenseResources) {
+    List<CondenseResource> withoutFlac = condenseResources.stream().filter(
+        (condenseResource) -> !isCondenseIgnoreFlac(condenseResource)
+    ).toList();
+    return filterIgnoring(withoutFlac);
+  }
+
   private List<CondenseResource> filterIgnoring(List<CondenseResource> recursiveResources) {
     final Optional<CondenseResource> ignoringCriteria = recursiveResources.stream()
         .filter(this::isCondenseIgnoreFileItself)
@@ -97,6 +109,7 @@ public class CondenseService {
       final String ignorePatterns = ignoringCriteria.get().getFileContent();
       return recursiveResources.stream()
           .filter(resource -> !isCondenseIgnoreFileItself(resource))
+          .filter(resource -> !isCondenseIgnoreFlac(resource))
           .filter(resource -> !isIgnored(resource.getPath(), ignorePatterns))
           .toList();
     } else {
@@ -106,6 +119,10 @@ public class CondenseService {
 
   private boolean isCondenseIgnoreFileItself(CondenseResource resource) {
     return resource.getName().equals(CONDENSE_IGNORING_FILE_NAME) && resource.isInRoot();
+  }
+
+  private boolean isCondenseIgnoreFlac(CondenseResource resource) {
+    return resource.getPath().endsWith(".flac");
   }
 
   private boolean isIgnored(String path, String gitignoreContent) {
@@ -140,6 +157,8 @@ public class CondenseService {
       final File source = new File(tmpWorkDir, resource.getName());
       resource.copyTo(source);
 
+      long uncompressedSize = source.length();
+
       final File target = new File(tmpWorkDir, changeFileExtension(resource.getName(), FLAC_FILE_ENDING));
 
       final AudioAttributes audio = new AudioAttributes();
@@ -153,7 +172,12 @@ public class CondenseService {
 
       encoder.encode(source, target, attrs);
 
+      long compressedSize = target.length();
+
       replaceResource(resource, target, storage);
+
+      double saving = ((double) uncompressedSize - compressedSize) / MEGABYTE;
+      metricService.update(new Metric(1, metricService.get().savedDiskSpace() + saving));
     } catch (EncoderException e) {
       e.printStackTrace();
     }
@@ -183,7 +207,8 @@ public class CondenseService {
         extractExistingArchives(target);
       }
       final File archive = new File(archiveConfig.getTmpWorkDir(), target.getName() + SEVEN_ZIP_FILE_ENDING);
-      new SevenZip().compress(target, archive);
+      double saving = new SevenZip().compress(target, archive);
+      metricService.update(new Metric(1, metricService.get().savedDiskSpace() + saving));
       replaceResource(resource, archive, storage);
     } finally {
       cleanDirectory(tmpWorkDir);
@@ -201,9 +226,10 @@ public class CondenseService {
         if (file.isDirectory()) {
           directories.add(file);
         } else if (file.getName().endsWith(SEVEN_ZIP_FILE_ENDING)) {
-          new SevenZip().extractTo(file,
+          double saving = new SevenZip().extractTo(file,
               new File(file.getParentFile(), file.getName().replace(SEVEN_ZIP_FILE_ENDING, "")).getParentFile());
           Files.delete(file.toPath());
+          metricService.update(new Metric(1, metricService.get().savedDiskSpace() + saving));
         }
       }
     }
