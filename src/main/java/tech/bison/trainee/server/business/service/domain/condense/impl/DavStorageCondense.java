@@ -45,7 +45,8 @@ public class DavStorageCondense implements CondenseStorage {
   }
 
   private List<DavResource> recursivelyListDav() throws IOException {
-    final List<DavResource> resources = new ArrayList<>(sardine.list(webdavServerUrl).stream().skip(1).toList());
+    final List<DavResource> resources = new ArrayList<>(sardine.list(webdavServerUrl).stream()
+        .skip(1).filter(davResource -> !davResource.getName().equals(".zfs")).toList());
     final LinkedList<DavResource> queue = new LinkedList<>(resources);
     while (!queue.isEmpty()) {
       final DavResource resource = queue.poll();
