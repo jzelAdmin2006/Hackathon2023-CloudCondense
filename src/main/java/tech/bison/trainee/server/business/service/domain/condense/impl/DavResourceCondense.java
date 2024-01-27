@@ -119,6 +119,6 @@ public class DavResourceCondense implements CondenseResource {
   @Override
   public boolean isInRoot() {
     final String location = getLocation();
-    return "/".equals(location) || "".equals(location);
+    return "/".equals(location) || "".equals(location) || "/dav".equals(location) || "/dav/".equals(location);
   }
 }
