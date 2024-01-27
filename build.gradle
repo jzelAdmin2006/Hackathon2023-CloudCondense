@@ -31,12 +31,17 @@ dependencies {
 	}
 	implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 	implementation 'org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r'
-	implementation files('/libs/jave-1.0.2.jar')
+	implementation files('libs/jave-1.0.2.jar')
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	
+	implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.2'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+bootJar {
+    archiveBaseName = 'app'
+    archiveVersion = ''
 }
