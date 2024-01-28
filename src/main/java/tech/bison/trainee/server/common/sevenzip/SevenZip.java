@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 
 import static java.lang.Thread.currentThread;
+import static org.apache.commons.io.FileUtils.sizeOfDirectory;
 
 public class SevenZip {
   private static final Logger LOGGER = Logger.getLogger(SevenZip.class.getName());
@@ -16,7 +18,7 @@ public class SevenZip {
 
 
   public double compress(File input, File archive) throws IOException {
-    final long originalSize = input.length();
+    final long originalSize = input.isDirectory() ? sizeOfDirectory(input) : input.length();
     final ProcessBuilder processBuilder = new ProcessBuilder("7z", "a", "-t7z", "-mx=9", archive.getAbsolutePath(),
         input.getAbsolutePath());
     try {
@@ -40,7 +42,7 @@ public class SevenZip {
       currentThread().interrupt();
       e.printStackTrace();
     }
-    final long extractedSize = extractionDir.length();
+    final long extractedSize = sizeOfDirectory(extractionDir);
     return ((double) compressedSize - extractedSize) / MEGABYTE;
   }
 

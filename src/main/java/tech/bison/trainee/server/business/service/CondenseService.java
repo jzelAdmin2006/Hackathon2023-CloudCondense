@@ -178,6 +178,12 @@ public class CondenseService {
       metricService.update(new Metric(1, metricService.get().savedDiskSpace() + saving));
     } catch (EncoderException e) {
       e.printStackTrace();
+    } finally {
+      try {
+        cleanDirectory(new File(archiveConfig.getTmpWorkDir()));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 

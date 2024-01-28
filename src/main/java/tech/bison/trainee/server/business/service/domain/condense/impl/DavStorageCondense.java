@@ -1,6 +1,7 @@
 package tech.bison.trainee.server.business.service.domain.condense.impl;
 
 import static java.util.stream.Collectors.toList;
+import static tech.bison.trainee.server.util.StringUtils.ensureNoLeadingSlash;
 import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
 
 import java.io.File;
@@ -66,7 +67,8 @@ public class DavStorageCondense implements CondenseStorage {
   @Override
   public void upload(File file, String location) {
     try (InputStream is = new FileInputStream(file)) {
-      final List<String> list = sardine.list(HttpUrl.parse(webdavServerUrl).resolve(location).toString())
+      final List<String> list = sardine.list(HttpUrl.parse(webdavServerUrl)
+              .resolve(ensureNoLeadingSlash(location)).toString())
           .stream()
           .map(DavResource::getName)
           .skip(1)
@@ -84,7 +86,8 @@ public class DavStorageCondense implements CondenseStorage {
         }
       }
 
-      sardine.put(HttpUrl.parse(webdavServerUrl).resolve(location + fileName).toString(), is);
+      sardine.put(HttpUrl.parse(webdavServerUrl)
+          .resolve(ensureNoLeadingSlash(location + fileName)).toString(), is);
     } catch (IOException e) {
       e.printStackTrace();
     }

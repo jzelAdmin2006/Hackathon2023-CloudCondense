@@ -1,5 +1,7 @@
 package tech.bison.trainee.server.webservice.service;
 
+import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
+
 import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -10,6 +12,7 @@ import tech.bison.trainee.server.business.domain.CloudStorage;
 import tech.bison.trainee.server.business.domain.GlobalConfig;
 import tech.bison.trainee.server.business.domain.Metric;
 import tech.bison.trainee.server.persistence.domain.cloud_storage.CloudStorageType;
+import tech.bison.trainee.server.util.StringUtils;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageRequestDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageResourceDto;
 import tech.bison.trainee.server.webservice.adapter.model.cloud_storage.CloudStorageTypeResourceDto;
@@ -32,7 +35,8 @@ public class WebMapperService {
             .filter(type -> type.getDisplayName().equals(cloudStorageDto.type()))
             .findFirst()
             .orElse(CloudStorageType.UNKNOWN),
-        Optional.ofNullable(cloudStorageDto.url()), cloudStorageDto.username(), cloudStorageDto.password(), new Date());
+        Optional.ofNullable(ensureTrailingSlash(cloudStorageDto.url())),
+        cloudStorageDto.username(), cloudStorageDto.password(), new Date());
   }
 
   public CloudStorageTypeResourceDto toDto(CloudStorageType type) {

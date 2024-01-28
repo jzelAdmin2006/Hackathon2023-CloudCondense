@@ -1,6 +1,7 @@
 package tech.bison.trainee.server.business.service.domain.condense.impl;
 
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
+import static tech.bison.trainee.server.util.StringUtils.ensureNoDavPrefix;
 import static tech.bison.trainee.server.util.StringUtils.ensureNoTrailingSlash;
 import static tech.bison.trainee.server.util.StringUtils.ensureTrailingSlash;
 
@@ -17,6 +18,7 @@ import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 
 import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import tech.bison.trainee.server.business.service.domain.condense.CondenseResource;
 import tech.bison.trainee.server.common.davresource.ResourceURL;
 
@@ -87,7 +89,8 @@ public class DavResourceCondense implements CondenseResource {
 
   @Override
   public String getLocation() {
-    return davResource.getPath().substring(0, davResource.getPath().length() - davResource.getName().length() - 1);
+    return ensureNoDavPrefix(davResource.getPath()
+        .substring(0, davResource.getPath().length() - davResource.getName().length() - 1));
   }
 
   private File childTarget(final File parentTarget, DavResource childResource) {
@@ -113,12 +116,12 @@ public class DavResourceCondense implements CondenseResource {
 
   @Override
   public String getPath() {
-    return davResource.getPath();
+    return ensureNoDavPrefix(davResource.getPath());
   }
 
   @Override
   public boolean isInRoot() {
     final String location = getLocation();
-    return "/".equals(location) || "".equals(location) || "/dav".equals(location) || "/dav/".equals(location);
+    return "/".equals(location) || "".equals(location);
   }
 }
