@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
 
 import static java.lang.Thread.currentThread;
 import static org.apache.commons.io.FileUtils.sizeOfDirectory;
@@ -33,6 +32,7 @@ public class SevenZip {
 
   public double extractTo(File archive, File extractionDir) throws IOException {
     final long compressedSize = archive.length();
+    final long extractionDirSizeBefore = sizeOfDirectory(extractionDir);
     final ProcessBuilder processBuilder = new ProcessBuilder(
             "7z", "x", archive.getAbsolutePath(), "-o" + extractionDir, "-aot"
     );
@@ -42,7 +42,7 @@ public class SevenZip {
       currentThread().interrupt();
       e.printStackTrace();
     }
-    final long extractedSize = sizeOfDirectory(extractionDir);
+    final long extractedSize = sizeOfDirectory(extractionDir) - extractionDirSizeBefore;
     return ((double) compressedSize - extractedSize) / MEGABYTE;
   }
 
